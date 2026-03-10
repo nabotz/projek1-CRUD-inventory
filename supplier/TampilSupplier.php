@@ -5,7 +5,7 @@ include "../koneksi.php";
 $base_url = '../';
 $current_page = 'supplier';
 
-$result = mysqli_query($koneksi, "SELECT * FROM supplier ORDER BY nama");
+$result = $koneksi->query("SELECT * FROM supplier ORDER BY nama")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -33,7 +33,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM supplier ORDER BY nama");
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Daftar Supplier</h3>
-                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= mysqli_num_rows($result) ?>
+                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= count($result) ?>
                             supplier</span>
                     </div>
 
@@ -52,7 +52,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM supplier ORDER BY nama");
                             </thead>
                             <tbody>
                                 <?php $no = 1;
-                                while ($row = mysqli_fetch_assoc($result)): ?>
+                                foreach ($result as $row): ?>
                                     <tr>
                                         <td><?= $no++ ?></td>
                                         <td><strong><?= htmlspecialchars($row['nama']) ?></strong></td>
@@ -68,7 +68,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM supplier ORDER BY nama");
                                                 onclick="return confirm('Hapus supplier ini?')">Hapus</a>
                                         </td>
                                     </tr>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>

@@ -28,7 +28,7 @@ if (!empty($bulan)) {
 }
 $sql .= " ORDER BY ts.tgl_transaksi DESC";
 
-$result = mysqli_query($koneksi, $sql);
+$result = $koneksi->query($sql)->fetchAll();
 
 $pdf = new PDF('L', 'mm', 'A4');
 $pdf->AddPage();
@@ -64,7 +64,7 @@ $pdf->SetFont('Arial', '', 10);
 $no = 1;
 $grandTotal = 0;
 
-while ($row = mysqli_fetch_assoc($result)) {
+foreach ($result as $row) {
     $pdf->Cell(10, 8, $no, 1, 0, 'C');
     $pdf->Cell(50, 8, $row['nama'], 1, 0, 'L');
     $pdf->Cell(25, 8, $row['kode'], 1, 0, 'C');

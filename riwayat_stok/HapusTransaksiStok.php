@@ -10,16 +10,16 @@ if (empty($id)) {
 }
 
 $sql = "DELETE FROM transaksi_stok WHERE id_transaksi = ?";
-$stmt = mysqli_prepare($koneksi, $sql);
-mysqli_stmt_bind_param($stmt, "i", $id);
+$stmt = $koneksi->prepare($sql);
 
-if (mysqli_stmt_execute($stmt)) {
+try {
+    $stmt->execute([$id]);
     header('Location: TampilRiwayatStok.php');
-} else {
-    error_log("Error hapus transaksi stok: " . mysqli_error($koneksi));
+} catch (\PDOException $e) {
+    error_log("Error hapus transaksi stok: " . $e->getMessage());
     header('Location: TampilRiwayatStok.php?error=1');
 }
 
-mysqli_stmt_close($stmt);
+$stmt = null;
 exit;
 ?>

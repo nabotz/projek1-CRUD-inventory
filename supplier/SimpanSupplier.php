@@ -9,16 +9,16 @@ $no_npwp = $_POST['no_npwp'];
 $jenis_supplier = $_POST['jenis_supplier'];
 
 $sql = "INSERT INTO supplier (nama, alamat, no_telp, no_npwp, jenis_supplier) VALUES (?, ?, ?, ?, ?)";
-$stmt = mysqli_prepare($koneksi, $sql);
-mysqli_stmt_bind_param($stmt, "sssss", $nama, $alamat, $no_telp, $no_npwp, $jenis_supplier);
+$stmt = $koneksi->prepare($sql);
 
-if (mysqli_stmt_execute($stmt)) {
+try {
+    $stmt->execute([$nama, $alamat, $no_telp, $no_npwp, $jenis_supplier]);
     header('Location: TampilSupplier.php');
-} else {
-    error_log("Error insert supplier: " . mysqli_error($koneksi));
+} catch (\PDOException $e) {
+    error_log("Error insert supplier: " . $e->getMessage());
     header('Location: TampilSupplier.php?error=1');
 }
 
-mysqli_stmt_close($stmt);
+$stmt = null;
 exit;
 ?>

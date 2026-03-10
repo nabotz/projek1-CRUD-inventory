@@ -39,27 +39,27 @@ if (!empty($_FILES['foto']['name'])) {
 }
 
 /* ================== UPDATE DATABASE ================== */
-if (!empty($password)) {
-    // Update dengan password baru
-    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-    $sql = "UPDATE users SET username=?, nama=?, email=?, password=?, foto=? WHERE id=?";
-    $stmt = $koneksi->prepare($sql);
-    $stmt->bind_param("sssssi", $username, $nama, $email, $hashed_password, $xfoto, $id);
-} else {
-    // Update tanpa password
-    $sql = "UPDATE users SET username=?, nama=?, email=?, foto=? WHERE id=?";
-    $stmt = $koneksi->prepare($sql);
-    $stmt->bind_param("ssssi", $username, $nama, $email, $xfoto, $id);
-}
-
-if ($stmt->execute()) {
+try {
+    if (!empty($password)) {
+        // Update dengan password baru
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+        $sql = "UPDATE users SET username=?, nama=?, email=?, password=?, foto=? WHERE id=?";
+        $stmt = $koneksi->prepare($sql);
+        $stmt->execute([$username, $nama, $email, $hashed_password, $xfoto, $id]);
+    } else {
+        // Update tanpa password
+        $sql = "UPDATE users SET username=?, nama=?, email=?, foto=? WHERE id=?";
+        $stmt = $koneksi->prepare($sql);
+        $stmt->execute([$username, $nama, $email, $xfoto, $id]);
+    }
+    
     header('Location: TampilUser.php');
-} else {
-    error_log("Error update user: " . mysqli_error($koneksi));
+} catch (\PDOException $e) {
+    error_log("Error update user: " . $e->getMessage());
     header('Location: TampilUser.php?error=1');
 }
 
-$stmt->close();
-$koneksi->close();
+$stmt = null;
+$koneksi = null;
 exit;
 ?>

@@ -12,10 +12,10 @@ $sql = "SELECT p.kode_produk, p.lokasi, k.nama_kategori, k.harga_satuan, k.stok_
         GROUP BY p.kode_produk, p.lokasi, k.nama_kategori, k.harga_satuan, k.stok_minimum
         ORDER BY p.kode_produk";
 
-$result = mysqli_query($koneksi, $sql);
+$result = $koneksi->query($sql)->fetchAll();
 
 $produk = [];
-while ($row = mysqli_fetch_assoc($result)) {
+foreach ($result as $row) {
     $produk[] = [
         'kode_produk' => $row['kode_produk'],
         'nama_kategori' => $row['nama_kategori'],

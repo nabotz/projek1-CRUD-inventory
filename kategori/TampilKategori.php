@@ -5,7 +5,7 @@ include "../koneksi.php";
 $base_url = '../';
 $current_page = 'kategori';
 
-$result = mysqli_query($koneksi, "SELECT * FROM kategori ORDER BY nama_kategori");
+$result = $koneksi->query("SELECT * FROM kategori ORDER BY nama_kategori")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -33,7 +33,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM kategori ORDER BY nama_kategori"
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Daftar Kategori</h3>
-                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= mysqli_num_rows($result) ?>
+                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= count($result) ?>
                             kategori</span>
                     </div>
 
@@ -51,7 +51,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM kategori ORDER BY nama_kategori"
                             </thead>
                             <tbody>
                                 <?php $no = 1;
-                                while ($row = mysqli_fetch_assoc($result)): ?>
+                                foreach ($result as $row): ?>
                                     <tr>
                                         <td><?= $no++ ?></td>
                                         <td>
@@ -73,7 +73,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM kategori ORDER BY nama_kategori"
                                                 onclick="return confirm('Hapus kategori ini?')">Hapus</a>
                                         </td>
                                     </tr>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>

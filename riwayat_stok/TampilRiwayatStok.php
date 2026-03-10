@@ -5,15 +5,14 @@ include "../koneksi.php";
 $base_url = '../';
 $current_page = 'riwayat_stok';
 
-$result = mysqli_query(
-    $koneksi,
+$result = $koneksi->query(
     "SELECT ts.*, s.nama, p.kode_produk as kode, k.nama_kategori, k.harga_satuan
      FROM transaksi_stok ts
      JOIN supplier s ON ts.id_supplier = s.id_supplier
      JOIN produk p ON ts.kode_produk = p.kode_produk
      JOIN kategori k ON p.id_kategori = k.id_kategori
      ORDER BY ts.id_transaksi DESC"
-);
+)->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -39,17 +38,17 @@ $result = mysqli_query(
                             <option value="">-- Semua Bulan --</option>
                             <?php
                             $bulan_nama = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                            $bulan_query = mysqli_query($koneksi, "SELECT DISTINCT MONTH(tgl_transaksi) as bulan FROM transaksi_stok ORDER BY bulan");
-                            while ($b = mysqli_fetch_assoc($bulan_query)): ?>
+                            $bulan_query = $koneksi->query("SELECT DISTINCT MONTH(tgl_transaksi) as bulan FROM transaksi_stok ORDER BY bulan")->fetchAll();
+                            foreach ($bulan_query as $b): ?>
                                 <option value="<?= $b['bulan'] ?>"><?= $bulan_nama[$b['bulan']] ?></option>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </select>
                         <select name="tahun" class="form-control" style="width: auto; padding: 8px 12px;">
                             <?php
-                            $tahun_query = mysqli_query($koneksi, "SELECT DISTINCT YEAR(tgl_transaksi) as tahun FROM transaksi_stok ORDER BY tahun DESC");
-                            while ($t = mysqli_fetch_assoc($tahun_query)): ?>
+                            $tahun_query = $koneksi->query("SELECT DISTINCT YEAR(tgl_transaksi) as tahun FROM transaksi_stok ORDER BY tahun DESC")->fetchAll();
+                            foreach ($tahun_query as $t): ?>
                                 <option value="<?= $t['tahun'] ?>"><?= $t['tahun'] ?></option>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </select>
                         <button type="submit" class="btn btn-secondary">🖨️ Cetak PDF</button>
                     </form>
@@ -61,7 +60,7 @@ $result = mysqli_query(
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Daftar Riwayat Stok</h3>
-                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= mysqli_num_rows($result) ?>
+                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= count($result) ?>
                             transaksi</span>
                     </div>
 
@@ -82,7 +81,7 @@ $result = mysqli_query(
                             </thead>
                             <tbody>
                                 <?php $no = 1;
-                                while ($row = mysqli_fetch_assoc($result)): ?>
+                                foreach ($result as $row): ?>
                                     <tr>
                                         <td><?= $no++ ?></td>
                                         <td><strong><?= htmlspecialchars($row['nama']) ?></strong></td>
@@ -101,7 +100,7 @@ $result = mysqli_query(
                                                 onclick="return confirm('Hapus transaksi ini?')">Hapus</a>
                                         </td>
                                     </tr>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>

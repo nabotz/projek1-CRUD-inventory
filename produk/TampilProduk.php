@@ -5,7 +5,7 @@ include "../koneksi.php";
 $base_url = '../';
 $current_page = 'produk';
 
-$result = mysqli_query($koneksi, "SELECT p.*, k.nama_kategori, k.harga_satuan FROM produk p JOIN kategori k ON p.id_kategori = k.id_kategori ORDER BY p.kode_produk");
+$result = $koneksi->query("SELECT p.*, k.nama_kategori, k.harga_satuan FROM produk p JOIN kategori k ON p.id_kategori = k.id_kategori ORDER BY p.kode_produk")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -33,7 +33,7 @@ $result = mysqli_query($koneksi, "SELECT p.*, k.nama_kategori, k.harga_satuan FR
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Daftar Produk</h3>
-                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= mysqli_num_rows($result) ?>
+                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= count($result) ?>
                             produk</span>
                     </div>
 
@@ -51,7 +51,7 @@ $result = mysqli_query($koneksi, "SELECT p.*, k.nama_kategori, k.harga_satuan FR
                             </thead>
                             <tbody>
                                 <?php $no = 1;
-                                while ($row = mysqli_fetch_assoc($result)): ?>
+                                foreach ($result as $row): ?>
                                     <tr>
                                         <td><?= $no++ ?></td>
                                         <td><strong><?= htmlspecialchars($row['kode_produk']) ?></strong></td>
@@ -66,7 +66,7 @@ $result = mysqli_query($koneksi, "SELECT p.*, k.nama_kategori, k.harga_satuan FR
                                                 onclick="return confirm('Hapus produk ini?')">Hapus</a>
                                         </td>
                                     </tr>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>

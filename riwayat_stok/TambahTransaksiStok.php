@@ -6,8 +6,8 @@ $base_url = '../';
 $current_page = 'riwayat_stok';
 
 $today = date('Y-m-d');
-$supplier_list = mysqli_query($koneksi, "SELECT * FROM supplier ORDER BY nama");
-$produk_list = mysqli_query($koneksi, "SELECT p.kode_produk, k.nama_kategori, k.harga_satuan FROM produk p JOIN kategori k ON p.id_kategori = k.id_kategori ORDER BY p.kode_produk");
+$supplier_list = $koneksi->query("SELECT * FROM supplier ORDER BY nama")->fetchAll();
+$produk_list = $koneksi->query("SELECT p.kode_produk, k.nama_kategori, k.harga_satuan FROM produk p JOIN kategori k ON p.id_kategori = k.id_kategori ORDER BY p.kode_produk")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -42,9 +42,9 @@ $produk_list = mysqli_query($koneksi, "SELECT p.kode_produk, k.nama_kategori, k.
                             <label class="form-label">Supplier</label>
                             <select name="id_supplier" class="form-control" required>
                                 <option value="">-- Pilih Supplier --</option>
-                                <?php while ($s = mysqli_fetch_assoc($supplier_list)): ?>
+                                <?php foreach ($supplier_list as $s): ?>
                                     <option value="<?= $s['id_supplier'] ?>"><?= htmlspecialchars($s['nama']) ?></option>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
@@ -52,12 +52,12 @@ $produk_list = mysqli_query($koneksi, "SELECT p.kode_produk, k.nama_kategori, k.
                             <label class="form-label">Produk</label>
                             <select name="kode_produk" id="kode_produk" class="form-control" required onchange="updateHarga()">
                                 <option value="">-- Pilih Produk --</option>
-                                <?php while ($p = mysqli_fetch_assoc($produk_list)): ?>
+                                <?php foreach ($produk_list as $p): ?>
                                     <option value="<?= $p['kode_produk'] ?>"
                                         data-harga="<?= $p['harga_satuan'] ?>">
                                         <?= $p['kode_produk'] ?> - <?= htmlspecialchars($p['nama_kategori']) ?> (Rp <?= number_format($p['harga_satuan'], 0, ',', '.') ?>/unit)
                                     </option>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 

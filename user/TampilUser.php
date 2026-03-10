@@ -5,7 +5,7 @@ include "../koneksi.php";
 $base_url = '../';
 $current_page = 'user';
 
-$result = mysqli_query($koneksi, "SELECT * FROM users ORDER BY nama");
+$result = $koneksi->query("SELECT * FROM users ORDER BY nama")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -37,7 +37,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM users ORDER BY nama");
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Daftar User</h3>
-                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= mysqli_num_rows($result) ?>
+                        <span style="color: var(--text-gray); font-size: 14px;">Total: <?= count($result) ?>
                             user</span>
                     </div>
 
@@ -55,7 +55,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM users ORDER BY nama");
                             </thead>
                             <tbody>
                                 <?php $no = 1;
-                                while ($row = mysqli_fetch_assoc($result)): ?>
+                                foreach ($result as $row): ?>
                                     <tr>
                                         <td><?= $no++ ?></td>
                                         <td><img src="uploads/<?= htmlspecialchars($row['foto']) ?>"
@@ -70,7 +70,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM users ORDER BY nama");
                                                 onclick="return confirm('Hapus user ini?')">Hapus</a>
                                         </td>
                                     </tr>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>

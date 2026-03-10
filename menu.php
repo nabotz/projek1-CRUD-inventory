@@ -3,69 +3,50 @@ require_once 'auth.php';
 include 'koneksi.php';
 
 // Query statistik overview
-$stok_masuk_hari_ini = mysqli_fetch_row(mysqli_query(
-    $koneksi,
-    "SELECT COUNT(*) FROM transaksi_stok WHERE DATE(tgl_transaksi) = CURDATE()"
-))[0];
-$stok_keluar_hari_ini = mysqli_fetch_row(mysqli_query(
-    $koneksi,
-    "SELECT COUNT(*) FROM transaksi_stok WHERE DATE(tgl_kadaluarsa) = CURDATE()"
-))[0];
-$total_transaksi = mysqli_fetch_row(mysqli_query(
-    $koneksi,
-    "SELECT COUNT(*) FROM transaksi_stok"
-))[0];
-$total_produk = mysqli_fetch_row(mysqli_query(
-    $koneksi,
-    "SELECT COUNT(*) FROM produk"
-))[0];
-$total_supplier = mysqli_fetch_row(mysqli_query(
-    $koneksi,
-    "SELECT COUNT(*) FROM supplier"
-))[0];
+$stok_masuk_hari_ini = $koneksi->query("SELECT COUNT(*) FROM transaksi_stok WHERE DATE(tgl_transaksi) = CURDATE()")->fetchColumn();
+$stok_keluar_hari_ini = $koneksi->query("SELECT COUNT(*) FROM transaksi_stok WHERE DATE(tgl_kadaluarsa) = CURDATE()")->fetchColumn();
+$total_transaksi = $koneksi->query("SELECT COUNT(*) FROM transaksi_stok")->fetchColumn();
+$total_produk = $koneksi->query("SELECT COUNT(*) FROM produk")->fetchColumn();
+$total_supplier = $koneksi->query("SELECT COUNT(*) FROM supplier")->fetchColumn();
 
 // Query kategori dengan jumlah produk dan harga
-$kategori_list = mysqli_query(
-    $koneksi,
+$kategori_list = $koneksi->query(
     "SELECT k.*, COUNT(p.kode_produk) as jumlah_produk
      FROM kategori k
      LEFT JOIN produk p ON k.id_kategori = p.id_kategori
      GROUP BY k.id_kategori
      ORDER BY k.nama_kategori"
-);
+)->fetchAll();
 
 // Data nilai stok per bulan untuk chart (12 bulan terakhir)
-$nilai_chart = mysqli_query(
-    $koneksi,
+$nilai_chart = $koneksi->query(
     "SELECT DATE_FORMAT(tgl_transaksi, '%Y-%m') as periode, MONTH(tgl_transaksi) as bulan, YEAR(tgl_transaksi) as tahun, COALESCE(SUM(total_nilai),0) as total
      FROM transaksi_stok
      WHERE tgl_transaksi >= DATE_SUB(CURDATE(), INTERVAL 11 MONTH)
      GROUP BY YEAR(tgl_transaksi), MONTH(tgl_transaksi)
      ORDER BY YEAR(tgl_transaksi), MONTH(tgl_transaksi)"
-);
+)->fetchAll();
 
 $bulan_nama = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 $chart_labels = [];
 $chart_data = [];
-while ($row = mysqli_fetch_assoc($nilai_chart)) {
+foreach ($nilai_chart as $row) {
     $chart_labels[] = $bulan_nama[$row['bulan']] . ' ' . $row['tahun'];
     $chart_data[] = (int) $row['total'];
 }
 
 // 5 Transaksi terbaru
-$transaksi_terbaru = mysqli_query(
-    $koneksi,
+$transaksi_terbaru = $koneksi->query(
     "SELECT ts.*, s.nama FROM transaksi_stok ts
      JOIN supplier s ON ts.id_supplier = s.id_supplier
      ORDER BY ts.id_transaksi DESC LIMIT 5"
-);
+)->fetchAll();
 
 // Total nilai masuk bulan ini
-$nilai_bulan = mysqli_fetch_row(mysqli_query(
-    $koneksi,
+$nilai_bulan = $koneksi->query(
     "SELECT COALESCE(SUM(total_nilai),0) FROM transaksi_stok
      WHERE MONTH(tgl_transaksi) = MONTH(CURDATE())"
-))[0];
+)->fetchColumn();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -166,8 +147,7 @@ $nilai_bulan = mysqli_fetch_row(mysqli_query(
                 <!-- Kategori Section -->
                 <h2 class="section-title">Kategori</h2>
                 <div class="rooms-grid">
-                    <?php mysqli_data_seek($kategori_list, 0); ?>
-                    <?php while ($kat = mysqli_fetch_assoc($kategori_list)): ?>
+                    <?php foreach ($kategori_list as $kat): ?>
                         <div class="room-card">
                             <span class="room-badge"><?= $kat['jumlah_produk'] ?> Produk</span>
                             <span class="room-menu">⋮</span>
@@ -177,7 +157,7 @@ $nilai_bulan = mysqli_fetch_row(mysqli_query(
                             <div class="room-price">Rp <?= number_format($kat['harga_satuan'], 0, ',', '.') ?><span> /
                                     unit</span></div>
                         </div>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 </div>
 
                 <!-- Stats & Revenue Row -->
@@ -196,7 +176,7 @@ $nilai_bulan = mysqli_fetch_row(mysqli_query(
                                 </div>
                                 <div class="stat-row">
                                     <span class="stat-label">Kategori</span>
-                                    <span class="stat-value"><?= mysqli_num_rows($kategori_list) ?></span>
+                                    <span class="stat-value"><?= count($kategori_list) ?></span>
                                 </div>
                                 <div class="stat-row">
                                     <span class="stat-label">Total Supplier</span>
@@ -249,8 +229,8 @@ $nilai_bulan = mysqli_fetch_row(mysqli_query(
                             <h3 class="card-title">Transaksi Terbaru</h3>
                             <a href="riwayat_stok/TampilRiwayatStok.php" class="card-link">Lihat Semua →</a>
                         </div>
-                        <?php if (mysqli_num_rows($transaksi_terbaru) > 0): ?>
-                            <?php while ($t = mysqli_fetch_assoc($transaksi_terbaru)): ?>
+                        <?php if (count($transaksi_terbaru) > 0): ?>
+                            <?php foreach ($transaksi_terbaru as $t): ?>
                                 <div class="transaction-item">
                                     <div class="transaction-info">
                                         <div class="transaction-avatar">👤</div>
@@ -263,7 +243,7 @@ $nilai_bulan = mysqli_fetch_row(mysqli_query(
                                     </div>
                                     <div class="transaction-room"><?= $t['kode_produk'] ?></div>
                                 </div>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         <?php else: ?>
                             <div class="empty-state">Belum ada transaksi</div>
                         <?php endif; ?>

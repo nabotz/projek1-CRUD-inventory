@@ -10,16 +10,16 @@ if (empty($id)) {
 }
 
 $sql = "DELETE FROM supplier WHERE id_supplier = ?";
-$stmt = mysqli_prepare($koneksi, $sql);
-mysqli_stmt_bind_param($stmt, "i", $id);
+$stmt = $koneksi->prepare($sql);
 
-if (mysqli_stmt_execute($stmt)) {
+try {
+    $stmt->execute([$id]);
     header('Location: TampilSupplier.php');
-} else {
-    error_log("Error hapus supplier: " . mysqli_error($koneksi));
+} catch (\PDOException $e) {
+    error_log("Error hapus supplier: " . $e->getMessage());
     header('Location: TampilSupplier.php?error=1');
 }
 
-mysqli_stmt_close($stmt);
+$stmt = null;
 exit;
 ?>

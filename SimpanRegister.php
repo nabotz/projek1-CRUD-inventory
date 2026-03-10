@@ -22,9 +22,10 @@ if ($password !== $confirm_password) {
 }
 
 /* ================== CEK USERNAME ================== */
-$result = mysqli_query($koneksi, "SELECT id FROM users WHERE username = '$username'");
+$stmt = $koneksi->prepare("SELECT id FROM users WHERE username = ?");
+$stmt->execute([$username]);
 
-if (mysqli_fetch_assoc($result)) {
+if ($stmt->fetch()) {
     $_SESSION['register_error'] = 'Username sudah digunakan!';
     header('Location: register.php');
     exit;
@@ -67,16 +68,16 @@ $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
 $sql = "INSERT INTO users (username, password, nama, foto) VALUES (?, ?, ?, ?)";
 $stmt = $koneksi->prepare($sql);
-$stmt->bind_param("ssss", $username, $hashed_password, $nama, $namaFotoBaru);
 
-if ($stmt->execute()) {
+try {
+    $stmt->execute([$username, $hashed_password, $nama, $namaFotoBaru]);
     $_SESSION['register_success'] = 'Registrasi berhasil! Silakan login.';
-} else {
-    $_SESSION['register_error'] = 'Error: ' . mysqli_error($koneksi);
+} catch (\PDOException $e) {
+    $_SESSION['register_error'] = 'Error: ' . $e->getMessage();
 }
 
-$stmt->close();
-$koneksi->close();
+$stmt = null;
+$koneksi = null;
 
 header('Location: register.php');
 ?>

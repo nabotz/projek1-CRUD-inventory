@@ -16,18 +16,15 @@ $password = bersih($_POST['password'] ?? '');
 $confirm_password = bersih($_POST['confirm_password'] ?? '');
 
 /* ================== CEK USERNAME DUPLIKAT ================== */
-$sql_cek = "SELECT id FROM users WHERE username = ?";
-$stmt_cek = mysqli_prepare($koneksi, $sql_cek);
-mysqli_stmt_bind_param($stmt_cek, "s", $username);
-mysqli_stmt_execute($stmt_cek);
-mysqli_stmt_store_result($stmt_cek);
+$stmt_cek = $koneksi->prepare("SELECT id FROM users WHERE username = ?");
+$stmt_cek->execute([$username]);
 
-if (mysqli_stmt_num_rows($stmt_cek) > 0) {
-    mysqli_stmt_close($stmt_cek);
+if ($stmt_cek->fetch()) {
+    $stmt_cek = null;
     header('Location: TambahUser.php?error=username');
     exit;
 }
-mysqli_stmt_close($stmt_cek);
+$stmt_cek = null;
 
 /* ================== VALIDASI PASSWORD ================== */
 if ($password !== $confirm_password) {
@@ -67,18 +64,17 @@ if (!move_uploaded_file($tmpFile, $folderUpload . $namaFotoBaru)) {
 
 /* ================== SIMPAN KE DATABASE ================== */
 $sql = "INSERT INTO users (username, password, nama, email, foto) VALUES (?, ?, ?, ?, ?)";
-
 $stmt = $koneksi->prepare($sql);
-$stmt->bind_param("sssss", $username, $hashed_password, $nama, $email, $namaFotoBaru);
 
-if ($stmt->execute()) {
+try {
+    $stmt->execute([$username, $hashed_password, $nama, $email, $namaFotoBaru]);
     header('Location: TampilUser.php');
-} else {
-    error_log("Error insert user: " . mysqli_error($koneksi));
+} catch (\PDOException $e) {
+    error_log("Error insert user: " . $e->getMessage());
     header('Location: TampilUser.php?error=1');
 }
 
-$stmt->close();
-$koneksi->close();
+$stmt = null;
+$koneksi = null;
 exit;
 ?>

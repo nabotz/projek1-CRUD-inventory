@@ -38,16 +38,16 @@ if (!empty($_FILES['foto_kamar']['name'])) {
 
 $sql = "UPDATE kategori SET nama_kategori=?, harga_satuan=?, stok_minimum=?, foto=? WHERE id_kategori=?";
 $stmt = $koneksi->prepare($sql);
-$stmt->bind_param("sdisi", $nama_kategori, $harga_satuan, $stok_minimum, $xfoto, $id);
 
-if ($stmt->execute()) {
+try {
+    $stmt->execute([$nama_kategori, $harga_satuan, $stok_minimum, $xfoto, $id]);
     header('Location: TampilKategori.php');
-} else {
-    error_log("Error update kategori: " . mysqli_error($koneksi));
+} catch (\PDOException $e) {
+    error_log("Error update kategori: " . $e->getMessage());
     header('Location: TampilKategori.php?error=1');
 }
 
-$stmt->close();
-$koneksi->close();
+$stmt = null;
+$koneksi = null;
 exit;
 ?>

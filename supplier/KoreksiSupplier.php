@@ -6,7 +6,9 @@ $base_url = '../';
 $current_page = 'supplier';
 
 $id = $_GET['id'] ?? '';
-$row = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM supplier WHERE id_supplier = '$id'"));
+$stmt = $koneksi->prepare("SELECT * FROM supplier WHERE id_supplier = ?");
+$stmt->execute([$id]);
+$row = $stmt->fetch();
 if (!$row) {
     header('Location: TampilSupplier.php');
     exit;

@@ -6,7 +6,9 @@ $base_url = '../';
 $current_page = 'kategori';
 
 $id = $_GET['id'] ?? '';
-$row = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM kategori WHERE id_kategori = '$id'"));
+$stmt = $koneksi->prepare("SELECT * FROM kategori WHERE id_kategori = ?");
+$stmt->execute([$id]);
+$row = $stmt->fetch();
 if (!$row) {
     header('Location: TampilKategori.php');
     exit;

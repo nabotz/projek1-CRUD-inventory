@@ -6,7 +6,9 @@ $base_url = '../';
 $current_page = 'user';
 
 $id = $_GET['id'] ?? '';
-$row = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM users WHERE id = '$id'"));
+$stmt = $koneksi->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$id]);
+$row = $stmt->fetch();
 if (!$row) {
     header('Location: TampilUser.php');
     exit;

@@ -39,16 +39,16 @@ if (isset($_FILES['foto_kamar']) && $_FILES['foto_kamar']['error'] == 0) {
 
 $sql = "INSERT INTO kategori (nama_kategori, harga_satuan, stok_minimum, foto) VALUES (?, ?, ?, ?)";
 $stmt = $koneksi->prepare($sql);
-$stmt->bind_param("sdis", $nama_kategori, $harga_satuan, $stok_minimum, $namaFotoBaru);
 
-if ($stmt->execute()) {
+try {
+    $stmt->execute([$nama_kategori, $harga_satuan, $stok_minimum, $namaFotoBaru]);
     header('Location: TampilKategori.php');
-} else {
-    error_log("Error insert kategori: " . mysqli_error($koneksi));
+} catch (\PDOException $e) {
+    error_log("Error insert kategori: " . $e->getMessage());
     header('Location: TampilKategori.php?error=1');
 }
 
-$stmt->close();
-$koneksi->close();
+$stmt = null;
+$koneksi = null;
 exit;
 ?>

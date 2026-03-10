@@ -6,13 +6,15 @@ $base_url = '../';
 $current_page = 'produk';
 
 $kode = $_GET['id'] ?? '';
-$row = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM produk WHERE kode_produk = '$kode'"));
+$stmt = $koneksi->prepare("SELECT * FROM produk WHERE kode_produk = ?");
+$stmt->execute([$kode]);
+$row = $stmt->fetch();
 if (!$row) {
     header('Location: TampilProduk.php');
     exit;
 }
 
-$kategori = mysqli_query($koneksi, "SELECT * FROM kategori ORDER BY nama_kategori");
+$kategori = $koneksi->query("SELECT * FROM kategori ORDER BY nama_kategori")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -54,9 +56,9 @@ $kategori = mysqli_query($koneksi, "SELECT * FROM kategori ORDER BY nama_kategor
                         <div class="form-group">
                             <label class="form-label">Kategori</label>
                             <select name="id_kategori" class="form-control" required>
-                                <?php while ($k = mysqli_fetch_assoc($kategori)): ?>
+                                <?php foreach ($kategori as $k): ?>
                                     <option value="<?= $k['id_kategori'] ?>" <?= $k['id_kategori'] == $row['id_kategori'] ? 'selected' : '' ?>><?= htmlspecialchars($k['nama_kategori']) ?></option>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="form-group">

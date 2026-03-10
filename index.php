@@ -11,11 +11,12 @@ if (isset($_SESSION['username'])) {
 // Proses login (harus sebelum output HTML)
 $error = '';
 if (isset($_POST['login'])) {
-    $username = mysqli_real_escape_string($koneksi, $_POST['username']);
+    $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $result = mysqli_query($koneksi, "SELECT * FROM users WHERE username = '$username' LIMIT 1");
-    $user = mysqli_fetch_assoc($result);
+    $stmt = $koneksi->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
 
     if ($user) {
         if (password_verify($password, $user['password'])) {

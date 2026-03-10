@@ -6,8 +6,8 @@ $base_url = '';
 $current_page = 'stok_masuk';
 $today = date('Y-m-d');
 
-$produk_list = mysqli_query($koneksi, "SELECT p.kode_produk, k.nama_kategori, k.harga_satuan, p.lokasi FROM produk p JOIN kategori k ON p.id_kategori = k.id_kategori ORDER BY p.kode_produk");
-$supplier_list = mysqli_query($koneksi, "SELECT * FROM supplier ORDER BY nama");
+$produk_list = $koneksi->query("SELECT p.kode_produk, k.nama_kategori, k.harga_satuan, p.lokasi FROM produk p JOIN kategori k ON p.id_kategori = k.id_kategori ORDER BY p.kode_produk")->fetchAll();
+$supplier_list = $koneksi->query("SELECT * FROM supplier ORDER BY nama")->fetchAll();
 
 $error = isset($_SESSION['stok_masuk_error']) ? $_SESSION['stok_masuk_error'] : '';
 $success = isset($_SESSION['stok_masuk_success']) ? $_SESSION['stok_masuk_success'] : '';
@@ -87,9 +87,9 @@ unset($_SESSION['stok_masuk_error'], $_SESSION['stok_masuk_success']);
                                     <label class="form-label">Pilih Supplier</label>
                                     <select name="id_supplier" id="id_supplier" class="form-control">
                                         <option value="">-- Pilih Supplier --</option>
-                                        <?php while ($s = mysqli_fetch_assoc($supplier_list)): ?>
+                                        <?php foreach ($supplier_list as $s): ?>
                                         <option value="<?= $s['id_supplier'] ?>"><?= htmlspecialchars($s['nama']) ?> (<?= $s['jenis_supplier'] ?>)</option>
-                                        <?php endwhile; ?>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                             </div>
@@ -115,11 +115,11 @@ unset($_SESSION['stok_masuk_error'], $_SESSION['stok_masuk_success']);
                                 <label class="form-label">Pilih Produk</label>
                                 <select name="kode_produk" id="kode_produk" class="form-control" required onchange="updateHarga()">
                                     <option value="">-- Pilih Produk --</option>
-                                    <?php while ($p = mysqli_fetch_assoc($produk_list)): ?>
+                                    <?php foreach ($produk_list as $p): ?>
                                     <option value="<?= $p['kode_produk'] ?>" data-harga="<?= $p['harga_satuan'] ?>">
                                         <?= $p['kode_produk'] ?> - <?= htmlspecialchars($p['nama_kategori']) ?> (<?= htmlspecialchars($p['lokasi']) ?>)
                                     </option>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
 

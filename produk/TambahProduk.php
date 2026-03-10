@@ -5,7 +5,7 @@ include "../koneksi.php";
 $base_url = '../';
 $current_page = 'produk';
 
-$kategori = mysqli_query($koneksi, "SELECT * FROM kategori ORDER BY nama_kategori");
+$kategori = $koneksi->query("SELECT * FROM kategori ORDER BY nama_kategori")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -46,10 +46,10 @@ $kategori = mysqli_query($koneksi, "SELECT * FROM kategori ORDER BY nama_kategor
                             <label class="form-label">Kategori</label>
                             <select name="id_kategori" class="form-control" required>
                                 <option value="">-- Pilih Kategori --</option>
-                                <?php while ($k = mysqli_fetch_assoc($kategori)): ?>
+                                <?php foreach ($kategori as $k): ?>
                                     <option value="<?= $k['id_kategori'] ?>"><?= htmlspecialchars($k['nama_kategori']) ?> - Rp
                                         <?= number_format($k['harga_satuan'], 0, ',', '.') ?>/unit</option>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
